@@ -8,9 +8,9 @@ c++ 11
 
 ## Usage
 
-1、clone this repo
-2、compile with `g++ -std=c++11 ib_monitor.cpp -o ib_monitor -lpthread`
-3、run `./ib_monitor`
+1. clone this repo
+2. compile with `g++ -std=c++11 ib_monitor.cpp -o ib_monitor -lpthread`
+3. run `./ib_monitor`
 
 ## Output
 
