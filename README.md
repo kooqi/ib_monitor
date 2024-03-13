@@ -14,11 +14,11 @@ c++ 11
 
 ## Output
 
-![ib monitor](/images/ib_monitor.png "ib monitor")
+![ib monitor](https://github.com/kooqi/ib_monitor/blob/main/image/ib_monitor.png?raw=true "ib monitor")
 
 ## DGX port map
 
-![port map ](/images/map.png "port map")
+![port map ](https://github.com/kooqi/ib_monitor/blob/main/image/map.png?raw=true "port map")
 
 > port_xmit_data: (RO) Total number of data octets, divided by 4 (lanes), transmitted on all VLs. This is 64 bit counter
 port_rcv_data: (RO) Total number of data octets, divided by 4 (lanes), received on all VLs. This is 64 bit counter.
