@@ -20,7 +20,7 @@ struct PortCounters {
 struct IBInterface {
     std::string name;
     std::vector<std::string> ports;
-    std::unordered_map<std::string, PortCounters> counters; // 映射端口名到其计数器数据
+    std::unordered_map<std::string, PortCounters> counters; 
 };
 
 std::vector<IBInterface> findIBInterfaces() {
@@ -31,12 +31,10 @@ std::vector<IBInterface> findIBInterfaces() {
         std::cout << "DEBUG: Opened /sys/class/infiniband/ successfully.\n";
         struct dirent* entry;
         while ((entry = readdir(dir)) != nullptr) {
-            // 修改逻辑：直接检查是否能够打开目录
             if (strcmp(entry->d_name, ".") != 0 && strcmp(entry->d_name, "..") != 0) {
                 std::string dirPath = path + entry->d_name;
                 DIR* testDir = opendir(dirPath.c_str());
                 if (testDir != nullptr) {
-                    // 成功打开目录，表明这是一个有效目录
                     closedir(testDir);
                     IBInterface iface;
                     iface.name = entry->d_name;
@@ -73,7 +71,7 @@ void printPortCounters(IBInterface& iface, const std::string& port) {
     std::string portRcvDataStr, portXmitDataStr;
     unsigned long long portRcvData, portXmitData;
 
-    // 读取接收到的数据量
+    // receive data
     in.open(counterPath + "port_rcv_data");
     if (in.is_open()) {
         std::getline(in, portRcvDataStr);
@@ -84,7 +82,7 @@ void printPortCounters(IBInterface& iface, const std::string& port) {
         return;
     }
 
-    // 读取发送的数据量
+    // transmit data
     in.open(counterPath + "port_xmit_data");
     if (in.is_open()) {
         std::getline(in, portXmitDataStr);
@@ -95,31 +93,29 @@ void printPortCounters(IBInterface& iface, const std::string& port) {
         return;
     }
 
-    // 获取当前端口的计数器
+    // get port counters
     auto& counters = iface.counters[port];
 
-    // 如果是第一次读取，初始化上一次的计数器值，然后跳过差分计算
+    // ignored first read
     if (counters.portRcvDataPrev == 0 && counters.portXmitDataPrev == 0) {
         counters.portRcvDataPrev = portRcvData;
         counters.portXmitDataPrev = portXmitData;
-        // 第一次读取时，没有差分数据可计算，所以跳过此次输出
         return;
     }
 
-    // 计算增量
     unsigned long long rcvDataDelta = portRcvData - counters.portRcvDataPrev;
     unsigned long long xmitDataDelta = portXmitData - counters.portXmitDataPrev;
 
-    // 更新存储的上一次计数器值
+    // update counters
     counters.portRcvDataPrev = portRcvData;
     counters.portXmitDataPrev = portXmitData;
 
-    // 转换为 Mbps ，port_xmit_data 和 port_rcv_data 的数值是实际的 1/4, 因此实际的带宽是在其基础之上乘以 4
+    // convert to Mbps
     double rcvMbps = static_cast<double>(rcvDataDelta) * 8 * 4 / 2 / 1e6;
     double xmitMbps = static_cast<double>(xmitDataDelta) * 8 * 4 / 2 / 1e6;
 
-    // 设置cout使用本地化格式
-    std::cout.imbue(std::locale("")); // 使用当前环境的默认区域设置
+    // setlocale
+    std::cout.imbue(std::locale("")); 
 
     std::cout << std::fixed << std::setprecision(2);
     std::cout << "Interface: " << iface.name << ", Port: " << port
@@ -127,7 +123,7 @@ void printPortCounters(IBInterface& iface, const std::string& port) {
               << ", XmitData: " << xmitMbps << " Mbps \n"
               << std::endl;
 
-    // 清除本地化设置，如果需要的话
+    // reset locale
     std::cout.imbue(std::locale::classic());
 }
 
@@ -140,14 +136,14 @@ int main() {
     }
 
     while (true) {
-        std::cout << "\033[2J\033[H"; // 清屏并将光标移动到左上角
+        std::cout << "\033[2J\033[H"; // clear screen
 
         for (auto& iface : interfaces) {
             for (const auto& port : iface.ports) {
                 printPortCounters(iface, port);
             }
         }
-        std::this_thread::sleep_for(std::chrono::seconds(2)); // 间隔
+        std::this_thread::sleep_for(std::chrono::seconds(2)); 
     }
 
     return 0;
