@@ -1,6 +1,6 @@
 # ib_monitor
 
-InfiniBand interface trafic monitor
+InfiniBand interface trafic monitor, tested on DGX/HGX A100/H100/A800/H800.
 
 ## System requirements
 
