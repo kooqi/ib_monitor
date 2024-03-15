@@ -23,6 +23,8 @@ struct IBInterface {
     std::unordered_map<std::string, PortCounters> counters; 
 };
 
+int interval = 2;
+
 std::vector<IBInterface> findIBInterfaces() {
     std::vector<IBInterface> interfaces;
     std::string path = "/sys/class/infiniband/";
@@ -111,17 +113,36 @@ void printPortCounters(IBInterface& iface, const std::string& port) {
     counters.portXmitDataPrev = portXmitData;
 
     // convert to Mbps
-    double rcvMbps = static_cast<double>(rcvDataDelta) * 8 * 4 / 2 / 1e6;
-    double xmitMbps = static_cast<double>(xmitDataDelta) * 8 * 4 / 2 / 1e6;
+    double rcvMbps = static_cast<double>(rcvDataDelta) * 8 * 4 / interval / 1e6;
+    double xmitMbps = static_cast<double>(xmitDataDelta) * 8 * 4 / interval / 1e6;
+    double portRcvTotal = static_cast<double>(portRcvData) * 8 * 4 / 1e9;
+    double portXmitTotal = static_cast<double>(portXmitData) * 8 * 4 / 1e9;
 
     // setlocale
     std::cout.imbue(std::locale("")); 
-
     std::cout << std::fixed << std::setprecision(2);
-    std::cout << "Interface: " << iface.name << ", Port: " << port
-              << ", RcvData: " << rcvMbps << " Mbps"
-              << ", XmitData: " << xmitMbps << " Mbps \n"
-              << std::endl;
+
+    // std::cout << "Interface: " << iface.name << ", Port: " << port
+    //           << ", RcvData: " << rcvMbps << " Mbps"
+    //           << ", XmitData: " << xmitMbps << " Mbps \n"
+    //           << std::endl;
+
+    //new style
+    std::cout << std::setw(10) << std::left << iface.name;
+    std::cout << std::setw(10) << std::left << port;
+    std::cout << std::setw(20) << std::right << rcvMbps;
+    std::cout << std::setw(20) << std::right << xmitMbps;
+    std::cout << std::setw(20) << std::right << portRcvTotal;
+    std::cout << std::setw(20) << std::right << portXmitTotal;
+    std::cout << std::endl;
+
+    std::cout << std::setw(10) << std::left << "------";
+    std::cout << std::setw(10) << std::left << "------";
+    std::cout << std::setw(20) << std::right << "------";
+    std::cout << std::setw(20) << std::right << "------";
+    std::cout << std::setw(20) << std::right << "------";
+    std::cout << std::setw(20) << std::right << "------";
+    std::cout << std::endl;
 
     // reset locale
     std::cout.imbue(std::locale::classic());
@@ -138,12 +159,29 @@ int main() {
     while (true) {
         std::cout << "\033[2J\033[H"; // clear screen
 
+        //new style
+        std::cout << std::setw(10) << std::left << "Interface";
+        std::cout << std::setw(10) << std::left << "Port";
+        std::cout << std::setw(20) << std::right << "RcvData (Mbps)";
+        std::cout << std::setw(20) << std::right << "XmitData (Mbps)";
+        std::cout << std::setw(20) << std::right << "Total Rcv(Gb)";
+        std::cout << std::setw(20) << std::right << "Total Xmit(Gb)";
+        std::cout << std::endl;
+
+        std::cout << std::setw(10) << std::left << "------";
+        std::cout << std::setw(10) << std::left << "------";
+        std::cout << std::setw(20) << std::right << "------";
+        std::cout << std::setw(20) << std::right << "------";
+        std::cout << std::setw(20) << std::right << "------";
+        std::cout << std::setw(20) << std::right << "------";
+        std::cout << std::endl;
+
         for (auto& iface : interfaces) {
             for (const auto& port : iface.ports) {
                 printPortCounters(iface, port);
             }
         }
-        std::this_thread::sleep_for(std::chrono::seconds(2)); 
+        std::this_thread::sleep_for(std::chrono::seconds(interval)); 
     }
 
     return 0;
