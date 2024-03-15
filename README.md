@@ -18,6 +18,7 @@ c++ 11
 
 ## DGX port map
 
+![DGX H100 ](https://github.com/kooqi/ib_monitor/blob/main/image/A100.png?raw=true "DGX H100")
 ![port map ](https://github.com/kooqi/ib_monitor/blob/main/image/map.png?raw=true "port map")
 
 > port_xmit_data: (RO) Total number of data octets, divided by 4 (lanes), transmitted on all VLs. This is 64 bit counter
